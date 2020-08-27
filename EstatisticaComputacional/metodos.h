@@ -1,6 +1,6 @@
 #pragma once
 double* allocation(int size);
-double* generator(size_t seed, int size);
+double* generator(size_t *seed, int size);
 
 /*This function implements a weibull random variable generator using the cumulative probability function inverse transform method */
 double* rWeibull(double size, double b, double c);

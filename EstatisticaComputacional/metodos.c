@@ -20,12 +20,12 @@ double* allocation(int size) {
 }
 
 /*Pseudorandom number generator with parameters M, a, d*/
-double* generator(size_t seed, int size) {
+double* generator(size_t *seed, int size) {
 	double* memory = allocation(size);
 	for (int i = 0; i < size; i++) {
-		memory[i] = (double)(seed = (seed * a + d) % M) / M;
+		memory[i] = (double)(*seed = (*seed * a + d) % M) / M;
 	}
-	
+	*seed = *seed * M;
 	return memory;
 }
 

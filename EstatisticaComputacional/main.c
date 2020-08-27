@@ -9,21 +9,24 @@
 
 int main(void)
 {
-    //To find time of execution
+    //To keep tracking the time of execution
     clock_t begin = clock();
     /* Setting Monte Carlo configuration*/
-    double shape = 3; //b
+    /*Setting Weibull parameters for the samples to be generated*/
+    double shape = 2; //b
     double scale = 3; //c
+    int taxa_sucesso = 0;
+    int sample_size = 10;
     int nRep = 100;
     double* param = allocation(nRep * 2);
-    double size = 0;
     size_t semente = 1990;
-    int sucesso = 0;
-    //generating uniform random numbers used to generate Weibull sample
-    double* uniform = generator(semente, nRep);
-    
+    /* Generating a nRep size vector of uniform random numbers necessary for generate Weibull samples */
+    double* uniform = 0;
+    uniform = generator(&semente, nRep * sample_size);
+    printf("A semente é %lu\n", semente);
+    int j = 0;
     for (int i = 0; i < nRep; i++) {
-        printf("Semente: %lu\n", semente);
+        printf("O Valor de i = %d\n", i);
         size_t iter = 0;
         int status;
 
@@ -31,14 +34,12 @@ int main(void)
         gsl_multimin_fdfminimizer* s;
 
         /* Put here the size of the sample and generate the Weibull sample according
-        to our function previously declared*/
-        size = 15;
-        double* par = rWeibull(size, shape, scale, uniform);
-        //printf("Sementesss: %lu\n", semente);
-
-
-        //printf("%.2f\n", par[0]);
-
+           to our function previously declared */
+        int offsetUniform = offsetUniform = (sample_size - 1)* j;
+        ++j;
+        double* par = 0;
+        par = rWeibull(sample_size, scale, shape, (uniform + offsetUniform));
+       
         gsl_vector* x;
         gsl_multimin_function_fdf my_func;
 
@@ -73,22 +74,33 @@ int main(void)
 
             status = gsl_multimin_test_gradient(s->gradient, 1e-3);
 
-            if (status == GSL_SUCCESS)
+            if (status == GSL_SUCCESS) {
+                ++taxa_sucesso;
                 printf("Minimum found at:\n");
+            }
             
-            printf("%5d %.5f %.5f %10.5f %.5f %.5f\n", iter,
-                gsl_vector_get(s->x, 0),
-                gsl_vector_get(s->x, 1),
-                s->f,
-                gsl_vector_get(grad, 0), gsl_vector_get(grad, 1));
-            
+                printf("%5d %.5f %.5f %10.5f %.5f %.5f\n", iter,
+                    gsl_vector_get(s->x, 0),
+                    gsl_vector_get(s->x, 1),
+                    s->f,
+                    gsl_vector_get(grad, 0), gsl_vector_get(grad, 1));
+
                 /* saving estimators*/
                 /* configuring access in a two-dimensional array */
-            *(param + i * 2) = gsl_vector_get(s->x, 0);
-            *(param + i * 2 + 1) = gsl_vector_get(s->x, 1);
-
+                *(param + i * 2) = gsl_vector_get(s->x, 0);
+                *(param + i * 2 + 1) = gsl_vector_get(s->x, 1);
+            
+            
         } while (status == GSL_CONTINUE && iter < 100);
-        
+        if (status != GSL_SUCCESS) {
+            
+            free(uniform);
+            --i;
+            uniform = generator(&semente, (nRep-i) * sample_size);
+            j = 0;
+            
+            continue;
+        }
         gsl_multimin_fdfminimizer_free(s);
         gsl_vector_free(x);
         free(par);
@@ -99,15 +111,15 @@ int main(void)
     double cum_shape = 0;
     double cum_scale = 0;
     for (int i = 0; i < nRep; i++) {
-        cum_scale += *(param + i * 2);
-        cum_shape += *(param + i * 2 + 1);
+        cum_shape += *(param + i * 2);
+        cum_scale += *(param + i * 2 + 1);
         
     }
     /* computing the mean value of the estimators */
     double mShape = cum_shape / nRep;
     double mScale = cum_scale / nRep;
     
-    printf("\n%.5f %.5f\n", mShape, mScale);
+    printf("\nShape: %.5f Scale: %.5f\n", mShape, mScale);
     printf("The bias of each estimator is: \n");
     printf("B_Shape: %.4f \nB_Scale: %.4f\n", mShape - shape, mScale - scale);
     printf("The Relative Bias :\nR_B_Shape: %.4f%c \nR_B_Scale: %.4f%c",
@@ -116,7 +128,7 @@ int main(void)
 
     free(param);
     free(uniform);
-    printf("\nTaxa de Sucesso: %d", sucesso);
+    printf("\nTaxa de Sucesso: %d", taxa_sucesso);
     clock_t end = clock();
     
     double TIME_E = ((double)(end - begin)) / CLOCKS_PER_SEC;
