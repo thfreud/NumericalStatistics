@@ -15,3 +15,10 @@ void my_df(const gsl_vector* v, void* params, gsl_vector* df);
 
 /* Compute both f and df together. */
 void my_fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df);
+
+/*Functions for computations of basic statistics*/
+//mean function
+double avg(double* data, int size);
+
+//variance of a data vector
+double variance(double* data, int size, double mean);

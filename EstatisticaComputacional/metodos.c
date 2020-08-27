@@ -92,3 +92,23 @@ void my_fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df)
 	*f = my_f(x, params);
 	my_df(x, params, df);
 }
+
+/*Functions for computations of basic statistics*/
+//mean of a data vector
+double avg(double* data, int size) {
+	double sum = 0;
+	for (int i = 0; i < size; i++) {
+		sum += *(data+i);
+	}
+	return (double) sum / size;
+}
+
+//variance of a data vector
+double variance(double* data, int size, double mean) {
+	double sum = 0;
+	
+	for (int i = 0; i < size; i++) {
+		sum += pow(*(data+i)-mean, 2);
+	}
+	return sum / ((double) size-1);
+}

@@ -11,7 +11,7 @@ int main(void)
 {
     //To keep tracking the time of execution
     clock_t begin = clock();
-    /* Setting Monte Carlo configuration*/
+    /*Setting Monte Carlo configuration*/
     /*Setting Weibull parameters for the samples to be generated*/
     double shape = 3; //b
     double scale = 3; //c
@@ -107,18 +107,17 @@ int main(void)
         /* end loop */
     }
 
-    double cum_shape = 0;
-    double cum_scale = 0;
-    for (int i = 0; i < nRep; i++) {
-        cum_shape += *(reg_shape+i);
-        cum_scale += *(reg_scale+i);
-        
-    }
+    
     /* computing the mean value of the estimators */
-    double mShape = cum_shape / nRep;
-    double mScale = cum_scale / nRep;
+    //double mShape = cum_shape / nRep;
+    //double mScale = cum_scale / nRep;
+    double mShape = avg(reg_shape, nRep);
+    double mScale = avg(reg_scale, nRep);
+    double varShape = variance(reg_shape, nRep, mShape);
+    double varScale = variance(reg_scale, nRep, mScale);
     printf("\nSIMULATION RESULTS FOR %d REPETITIONS WITH SAMPLE SIZE OF %d\n",nRep,sample_size);
     printf("\nShape: %.5f Scale: %.5f\n", mShape, mScale);
+    printf("Variance_Shape: %.5f Variance_Scale: %.5f\n", varShape, varScale);
     printf("The bias of each estimator is: \n");
     printf("Bias_Shape: %.4f \nBias_Scale: %.4f\n", mShape - shape, mScale - scale);
     printf("The Relative Bias :\nRBias_Shape: %.4f%c \nRBias_Scale: %.4f%c",
