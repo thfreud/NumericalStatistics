@@ -3,6 +3,7 @@
 #include <math.h>
 #include <gsl/gsl_multimin.h>
 #include <time.h>
+#include <gsl/gsl_statistics.h>
 #include "metodos.h"
 #define M 4294967295
 #define a 1664525
@@ -94,21 +95,27 @@ void my_fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df)
 }
 
 /*Functions for computations of basic statistics*/
-//mean of a data vector
-double avg(double* data, int size) {
-	double sum = 0;
-	for (int i = 0; i < size; i++) {
-		sum += *(data+i);
-	}
-	return (double) sum / size;
-}
 
-//variance of a data vector
-double variance(double* data, int size, double mean) {
-	double sum = 0;
-	
-	for (int i = 0; i < size; i++) {
-		sum += pow(*(data+i)-mean, 2);
-	}
-	return sum / ((double) size-1);
+void printData(double * reg_shape, double * reg_scale, int nRep, double shape, double scale, int sample_size) {
+	double mShape = gsl_stats_mean(reg_shape, 1, nRep);
+	double mScale = gsl_stats_mean(reg_scale, 1, nRep);
+	double varShape = gsl_stats_variance(reg_shape, 1, nRep);
+	double varScale = gsl_stats_variance(reg_scale, 1, nRep);
+	double largestShape = gsl_stats_max(reg_shape, 1, nRep);
+	double largestScale = gsl_stats_max(reg_scale, 1, nRep);
+	double skewShape = gsl_stats_skew(reg_shape, 1, nRep);
+	double kurtosisShape = gsl_stats_kurtosis(reg_shape, 1, nRep);
+	double skewScale = gsl_stats_skew(reg_scale, 1, nRep);
+	double kurtosisScale = gsl_stats_kurtosis(reg_scale, 1, nRep);
+
+	printf("\n---SIMULATION RESULTS FOR %d REPETITIONS WITH SAMPLE SIZE OF %d---\n", nRep, sample_size);
+	printf("\nShape: %.5f \nScale: %.5f\n", mShape, mScale);
+	printf("Variance_Shape: %.5f \nVariance_Scale: %.5f\n", varShape, varScale);
+	printf("Largest_Shape: %.5f \nLargest_Scale: %.5f\n", largestShape, largestScale);
+	printf("Skewness_Shape: %.5f \nSkewness_Scale: %.5f\n", skewShape, skewScale);
+	printf("Kurtosis_Shape: %.5f \nKurtosis_Scale: %.5f\n", kurtosisShape, kurtosisScale);
+	printf("The bias of each estimator is: \n");
+	printf("Bias_Shape: %.4f \nBias_Scale: %.4f\n", mShape - shape, mScale - scale);
+	printf("The Relative Bias :\nRBias_Shape: %.4f%c \nRBias_Scale: %.4f%c",
+		100 * (mShape - shape) / shape, '%', 100 * (mScale - scale) / scale, '%');
 }

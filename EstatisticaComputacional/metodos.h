@@ -20,8 +20,5 @@ void my_df(const gsl_vector* v, void* params, gsl_vector* df);
 void my_fdf(const gsl_vector* x, void* params, double* f, gsl_vector* df);
 
 /*Functions for computations of basic statistics*/
-//mean function
-double avg(double* data, int size);
-
-//variance of a data vector
-double variance(double* data, int size, double mean);
+//function for print data summary
+void printData(double* reg_shape, double* reg_scale, int nRep, double shape, double scale, int sample_size);
