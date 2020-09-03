@@ -25,7 +25,7 @@ double* generator(size_t *seed, int size) {
 	for (int i = 0; i < size; i++) {
 		memory[i] = (double)(*seed = (*seed * a + d) % M) / M;
 	}
-	*seed = *seed * M;
+	//*seed = *seed * M;
 	return memory;
 }
 
