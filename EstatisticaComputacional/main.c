@@ -19,15 +19,16 @@ int main(void)
     /*Setting Monte Carlo configuration*/
     /*Setting Weibull parameters for the samples to be generated*/
     double shape = 3; //b
-    double scale = 3; //c
+    double scale = 90; //c
     int success_count = 0;
     int fails_count = 0;
-    int sample_size = 100;
+    int sample_size = 30;
+    /*
     printf("Enter with the sample size: ");
     scanf("%d", &sample_size);
     printf("Would you like to recorde the data in a file? (0 = no, 1 = yes)");
-    scanf("%d", &save);
-    int nRep = 100;
+    scanf("%d", &save); */
+    int nRep = 10000;
     double* reg_shape = allocation(nRep);
     double* reg_scale = allocation(nRep);
     size_t semente = 1990;
@@ -63,14 +64,14 @@ int main(void)
 
         x = gsl_vector_alloc(2);
         gsl_vector_set(x, 0, 5);
-        gsl_vector_set(x, 1, 1);
+        gsl_vector_set(x, 1, 88);
 
 
         T = gsl_multimin_fdfminimizer_vector_bfgs2;
         // T = gsl_multimin_fdfminimizer_conjugate_fr;
         s = gsl_multimin_fdfminimizer_alloc(T, 2);
         gsl_vector* grad = gsl_multimin_fdfminimizer_gradient(s);
-        gsl_multimin_fdfminimizer_set(s, &my_func, x, 1e-3, 1e-5);
+        gsl_multimin_fdfminimizer_set(s, &my_func, x, 1e-7, 1e-3);
 
         do
         {
@@ -85,7 +86,7 @@ int main(void)
 
             if (status == GSL_SUCCESS) {
                 ++success_count;
-                printf("Minimum found at %d:\n",i);/*
+                printf("\r%d: ",i);/*
                 printf("%5d %.5f %.5f %10.5f %.5f %.5f\n", iter,
                     gsl_vector_get(s->x, 0),
                     gsl_vector_get(s->x, 1),
@@ -120,18 +121,18 @@ int main(void)
 
         /* end loop */
     }
-
+    //printing summary on the screen
     printData(reg_shape, reg_scale, nRep, shape, scale, sample_size);
     /*saving in a file the record of scale and shape values that was caught inside the Monte Carlo loop if
     save variable is true*/
     if (save == 1) {
         fprintf(reg, "Sample size of %d with %d Monte Carlo repetitions.\n", sample_size, nRep);
-        fprintf(reg,"\nShape \t Scale \n");
+        fprintf(reg, "\nShape \t Scale \n");
         for (int i = 0; i < nRep; i++) {
-            fprintf(reg,"%.2f \t%.2f\n", reg_shape[i], reg_scale[i]);
+            fprintf(reg, "%.2f \t%.2f\n", reg_shape[i], reg_scale[i]);
         }
     }
-    
+    fclose(reg);
     free(reg_shape);
     free(reg_scale);
     free(uniform);
@@ -142,6 +143,6 @@ int main(void)
     double TIME_E = ((double)(end - begin)) / CLOCKS_PER_SEC;
     printf("\nThe time of execution was %.3f seconds.",  TIME_E);
     
-    fclose(reg);
+    
     return 0;
 }

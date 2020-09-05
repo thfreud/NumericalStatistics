@@ -26,7 +26,7 @@ double* generator(size_t *seed, int size) {
 	for (int i = 0; i < size; i++) {
 		memory[i] = (double)(*seed = (*seed * a + d) % M) / M;
 	}
-	//*seed = *seed * M;
+	
 	return memory;
 }
 
@@ -63,6 +63,7 @@ double my_f(const gsl_vector* v, void* params)
 	for (size_t i = 0; i < p[0]; i++) {
 		total += log(c) + (c - 1) * log(p[i + 1]) - c * log(b) - pow(p[i + 1] / b, c);
 	}
+	
 	return -1 * total;
 }
 
@@ -108,7 +109,7 @@ void printData(double * reg_shape, double * reg_scale, int nRep, double shape, d
 	double skewScale = gsl_stats_skew(reg_scale, 1, nRep);
 	double kurtosisScale = gsl_stats_kurtosis(reg_scale, 1, nRep);
 
-	printf("\n---SIMULATION RESULTS FOR %d REPETITIONS WITH SAMPLE SIZE OF %d---\n", nRep, sample_size);
+	printf("\n--- SIMULATION RESULTS FOR %d REPETITIONS WITH SAMPLE SIZE OF %d ---\n", nRep, sample_size);
 	printf("\nShape: %.5f \nScale: %.5f\n", mShape, mScale);
 	printf("Variance_Shape: %.5f \nVariance_Scale: %.5f\n", varShape, varScale);
 	printf("Largest_Shape: %.5f \nLargest_Scale: %.5f\n", largestShape, largestScale);
