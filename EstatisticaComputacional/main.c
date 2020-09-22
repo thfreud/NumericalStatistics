@@ -18,11 +18,11 @@ int main(void)
     clock_t begin = clock();
     /*Setting Monte Carlo configuration*/
     /*Setting Weibull parameters for the samples to be generated*/
-    double shape = 3; //b
-    double scale = 90; //c
+    double shape = 3; //c
+    double scale = 3; //b
     int success_count = 0;
     int fails_count = 0;
-    int sample_size = 30;
+    int sample_size = 100;
     /*
     printf("Enter with the sample size: ");
     scanf("%d", &sample_size);
@@ -64,14 +64,13 @@ int main(void)
 
         x = gsl_vector_alloc(2);
         gsl_vector_set(x, 0, 5);
-        gsl_vector_set(x, 1, 88);
+        gsl_vector_set(x, 1, 1);
 
 
         T = gsl_multimin_fdfminimizer_vector_bfgs2;
-        // T = gsl_multimin_fdfminimizer_conjugate_fr;
         s = gsl_multimin_fdfminimizer_alloc(T, 2);
         gsl_vector* grad = gsl_multimin_fdfminimizer_gradient(s);
-        gsl_multimin_fdfminimizer_set(s, &my_func, x, 1e-7, 1e-3);
+        gsl_multimin_fdfminimizer_set(s, &my_func, x, 1e-7, 1e-4);
 
         do
         {

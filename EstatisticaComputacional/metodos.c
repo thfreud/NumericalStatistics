@@ -37,6 +37,7 @@ double* rWeibull(double size, double b, double c, double * uniform) {
 	//double* u = generator(seed, size + 1);
 	for (size_t i = 0; i < size + 1; i++) {
 		if (i == 0) {
+			//doing this, we avoid giving another vector in the likelihood function declaration
 			sample[i] = size;
 		}
 		else
@@ -48,8 +49,7 @@ double* rWeibull(double size, double b, double c, double * uniform) {
 	return sample;
 }
 
-/*This is the log-likelihood function of a weibull distribution with two parameters,
-and here the first and second functions are used.
+/*This is the log-likelihood function of a weibull distribution with two parameters.
 */
 double my_f(const gsl_vector* v, void* params)
 {
@@ -61,9 +61,10 @@ double my_f(const gsl_vector* v, void* params)
 	
 	double total = 0;
 	for (size_t i = 0; i < p[0]; i++) {
-		total += log(c) + (c - 1) * log(p[i + 1]) - c * log(b) - pow(p[i + 1] / b, c);
+		total += (c - 1) * log(p[i + 1])  - pow(p[i + 1] / b, c);
 	}
-	
+	//we keep this part outside the loop for improvements in performance.
+	total += p[0]*(log(c) - c * log(b));
 	return -1 * total;
 }
 
@@ -80,10 +81,14 @@ void my_df(const gsl_vector* v, void* params, gsl_vector* df)
 	double sum_t2 = 0;
 
 	for (size_t i = 0; i < p[0]; i++) {
-		sum_t2 += (-c / b) + (c / pow(b, c + 1) * pow(p[i + 1], c));
-		sum_t1 += (1 / c) + log(p[i + 1]) - log(b) - log(p[i + 1] / b) * pow(p[i + 1] / b, c);
+		sum_t2 += (c / pow(b, c + 1) * pow(p[i + 1], c));
+		sum_t1 += log(p[i + 1]) - log(p[i + 1] / b) * pow(p[i + 1] / b, c);
 
 	}
+	//we keep this part outside the loop for improvements in performance.
+	//p[0] corresponds to the size of the sample vector.
+	sum_t2 += p[0]*(-c / b);
+	sum_t1 += p[0]*((1 / c) - log(b));
 	gsl_vector_set(df, 0, (-1) * sum_t1);
 	gsl_vector_set(df, 1, (-1) * sum_t2);
 }
@@ -114,7 +119,8 @@ void printData(double * reg_shape, double * reg_scale, int nRep, double shape, d
 	printf("Variance_Shape: %.5f \nVariance_Scale: %.5f\n", varShape, varScale);
 	printf("Largest_Shape: %.5f \nLargest_Scale: %.5f\n", largestShape, largestScale);
 	printf("Skewness_Shape: %.5f \nSkewness_Scale: %.5f\n", skewShape, skewScale);
-	printf("Kurtosis_Shape: %.5f \nKurtosis_Scale: %.5f\n", kurtosisShape, kurtosisScale);
+	/*As gsl implements the excess kurtosis approach, one has to sum 3 in order to get kurtosis.*/
+	printf("Kurtosis_Shape: %.5f \nKurtosis_Scale: %.5f\n", kurtosisShape+3, kurtosisScale+3);
 	printf("The bias of each estimator is: \n");
 	printf("Bias_Shape: %.4f \nBias_Scale: %.4f\n", mShape - shape, mScale - scale);
 	printf("The Relative Bias :\nRBias_Shape: %.4f%c \nRBias_Scale: %.4f%c",
