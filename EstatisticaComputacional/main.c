@@ -1,3 +1,9 @@
+/*
+This program implements the maximum likelihood estimation method of a two parameters weibull distribution.
+author: THOMÁS FREUD DE MORAIS GONÇALVES
+date: 09/24/2020
+last revision: 09/24/2020
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -12,10 +18,8 @@ int main(void)
 {
     FILE* reg;
     reg = fopen("data.txt", "w+");
-    //if save = 1 then the data shall be recorded in a file.
+    //if save = 1 then the data shall be recorded in a file. We have set 0 as default.
     int save = 0;
-    //To keep tracking the time of execution
-    clock_t begin = clock();
     /*Setting Monte Carlo configuration*/
     /*Setting Weibull parameters for the samples to be generated*/
     double shape = 3; //c
@@ -23,11 +27,13 @@ int main(void)
     int success_count = 0;
     int fails_count = 0;
     int sample_size = 100;
-    /*
+    
     printf("Enter with the sample size: ");
     scanf("%d", &sample_size);
-    printf("Would you like to recorde the data in a file? (0 = no, 1 = yes)");
-    scanf("%d", &save); */
+    printf("Would you like to recorde the data in a file? (0 = no, 1 = yes): ");
+    scanf("%d", &save);
+    //To keep tracking the time of execution
+    clock_t begin = clock();
     int nRep = 10000;
     double* reg_shape = allocation(nRep);
     double* reg_scale = allocation(nRep);
@@ -66,11 +72,11 @@ int main(void)
         gsl_vector_set(x, 0, 5);
         gsl_vector_set(x, 1, 1);
 
-
+        //We are using BFGS method
         T = gsl_multimin_fdfminimizer_vector_bfgs2;
         s = gsl_multimin_fdfminimizer_alloc(T, 2);
         gsl_vector* grad = gsl_multimin_fdfminimizer_gradient(s);
-        gsl_multimin_fdfminimizer_set(s, &my_func, x, 1e-7, 1e-4);
+        gsl_multimin_fdfminimizer_set(s, &my_func, x, 1e-10, 1e-1);
 
         do
         {
@@ -92,8 +98,8 @@ int main(void)
                     s->f,
                     gsl_vector_get(grad, 0), gsl_vector_get(grad, 1));
                     */
-                /* saving estimators*/
-                /* configuring access in a two-dimensional array */
+                /* saving estimators in vectors*/
+                
                 *(reg_shape + i) = gsl_vector_get(s->x, 0);
                 *(reg_scale + i) = gsl_vector_get(s->x, 1);
             }
@@ -120,6 +126,7 @@ int main(void)
 
         /* end loop */
     }
+    
     //printing summary on the screen
     printData(reg_shape, reg_scale, nRep, shape, scale, sample_size);
     /*saving in a file the record of scale and shape values that was caught inside the Monte Carlo loop if
@@ -137,8 +144,8 @@ int main(void)
     free(uniform);
     printf("\nMonte Carlo executions: %d", success_count);
     printf("\nIterations Fail Rate: %.4f%c", (double) 100*fails_count/nRep, '%');
-    clock_t end = clock();
     
+    clock_t end = clock();
     double TIME_E = ((double)(end - begin)) / CLOCKS_PER_SEC;
     printf("\nThe time of execution was %.3f seconds.",  TIME_E);
     
