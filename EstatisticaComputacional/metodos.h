@@ -13,7 +13,7 @@ and here the first and second functions are used.
 */
 double my_f(const gsl_vector* v, void* params);
 
-/*Here we declare the gradient.*/
+/*Here we declare the gradient prototype.*/
 void my_df(const gsl_vector* v, void* params, gsl_vector* df);
 
 /* Compute both f and df together. */

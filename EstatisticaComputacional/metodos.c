@@ -119,6 +119,7 @@ void printData(double * reg_shape, double * reg_scale, int nRep, double shape, d
 	printf("Variance_Shape: %.5f \nVariance_Scale: %.5f\n", varShape, varScale);
 	printf("Largest_Shape: %.5f \nLargest_Scale: %.5f\n", largestShape, largestScale);
 	printf("Skewness_Shape: %.5f \nSkewness_Scale: %.5f\n", skewShape, skewScale);
+
 	/*As gsl implements the excess kurtosis approach, one has to sum 3 in order to get kurtosis.*/
 	printf("Kurtosis_Shape: %.5f \nKurtosis_Scale: %.5f\n", kurtosisShape+3, kurtosisScale+3);
 	printf("The bias of each estimator is: \n");
