@@ -1,0 +1,5 @@
+C:\Users\thoma\Source\Repos\NumericalStatistics\EstatisticaComputacional\Debug\EstatisticaComputacional.vcxproj.CopyComplete
+C:\Users\thoma\Source\Repos\NumericalStatistics\EstatisticaComputacional\Debug\EstatisticaComputacional.exe
+C:\Users\thoma\Source\Repos\NumericalStatistics\EstatisticaComputacional\Debug\EstatisticaComputacional.pdb
+C:\Users\thoma\Source\Repos\NumericalStatistics\EstatisticaComputacional\Debug\gsld.dll
+C:\Users\thoma\Source\Repos\NumericalStatistics\EstatisticaComputacional\Debug\gslcblasd.dll
